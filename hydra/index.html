@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>hydra的使用教程 | 凉生丶因源的blog</title>
+<meta name="description" content="">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="shortcut icon" href="http://liangsheng8708.github.io/favicon.ico?v=1686227407809">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://unpkg.com/papercss@1.6.1/dist/paper.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="http://liangsheng8708.github.io/styles/main.css">
+
+
+<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+  </head>
+  <body>
+  
+    <nav class="navbar border fixed split-nav">
+  <div class="nav-brand">
+    <h3><a href="http://liangsheng8708.github.io">凉生丶因源的blog</a></h3>
+  </div>
+  <div class="collapsible">
+    <input id="collapsible1" type="checkbox" name="collapsible1">
+    <button>
+      <label for="collapsible1">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+      </label>
+    </button>
+    <div class="collapsible-body">
+      <ul class="inline">
+        
+          <li>
+            
+              <a href="/" class="menu">
+                首页
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/archives" class="menu">
+                归档
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/tags" class="menu">
+                标签
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/post/about" class="menu">
+                关于
+              </a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div id="top" class="row site">
+      <div class="sm-12 md-8 col">
+        <div class="paper">
+          <article class="article">
+            <h1>hydra的使用教程</h1>
+            <p class="article-meta">
+              2022-10-09
+              
+                <a href="http://liangsheng8708.github.io/wangan/" class="badge warning">
+                  网安
+                </a>
+              
+            </p>
+            
+            <div class="post-content" v-pre>
+              <p>hydra是著名黑客组织thc的一款开源的暴力破解密码工具，功能非常强大，kali下是默认安装的，几乎支持所有协议的在线破解。密码能否破解，在于字典是否强大。本文仅从安全角度去讲解工具的使用，请勿用于非法用途。</p>
+<hr>
+<h3>hydra参数讲解</h3>
+使用方法：hydra &lt; 参数 &gt; &lt;  IP地址 &gt; &lt; 服务名 &gt;
+<br>
+hydra是区分大小写的
+<pre>-R  #继续从上一次进度接着破解。
+-S  #采用SSL链接。
+-s  #PORT 可通过这个参数指定非默认端口。
+-l  #LOGIN 指定破解的用户，对特定用户破解。
+-L  #FILE 指定用户名字典。
+-p  #PASS 小写，指定密码破解，少用，一般是采用密码字典。
+-P  #FILE 大写，指定密码字典。
+-e  #ns 可选选项，n：空密码试探，s：使用指定用户和密码试探。
+-C  #FILE 使用冒号分割格式，例如“登录名:密码”来代替-L/-P参数。
+-M  #FILE 指定目标列表文件一行一条。
+-o  #FILE 指定结果输出文件。
+-f  #在使用-M参数以后，找到第一对登录名或者密码的时候中止破解。
+-t  #TASKS 同时运行的线程数，默认为16。
+-w  #TIME 设置最大超时的时间，单位秒，默认是30s。
+-v/-V #显示详细过程。
+server #目标ip
+service #指定服务名
+OPT #可选项
+</pre>
+<h3>操作演示</h3>
+这里我为了演示写了两个弱口令文本，在真实环境中需要用到强大得字典。
+<br>
+<!-- ![](http://liangsheng8708.github.io/post-images/1637202776136.png) -->
+<img src="http://www.muliang.top/post-images/1637202776136.png">
+<br>
+破解ssh
+<br>
+<pre>hydra -L user.txt -P pass.txt -t 2 -vV -e ns 192.168.124.10 ssh</pre>
+<br>
+<!-- ![](http://liangsheng8708.github.io/post-images/1637203037942.png) -->
+<img src="http://www.muliang.top/post-images/1637203037942.png">
+<br>
+破解ftp
+<pre>hydra ip ftp -l 用户名 -P 密码字典 -e ns -vV
+</pre>
+破解teamspeak
+<pre>hydra -l 用户名 -P 密码字典 -s 端口号 -vV ip teamspeak
+</pre>
+破解pop3
+<pre>hydra -l muts -P pass.txt my.pop3.mail pop3
+</pre>
+这里就不依次说明了。
+上文说到，破解的关键在于密码字典得强大与否。所以我们在破解过程中就需要思考，如何获取强大的字典呢。在Kali中内置了很多字典，路径如下：
+<pre>cd /usr/share/wordlists/
+</pre>
+输入<storage>ls</storage>查看所有字典，这里详细举例两个目录
+<br>
+<code>dirb</code>
+<pre>big.txt #大的字典
+small.txt #小的字典
+catala.txt #项目配置字典
+common.txt #公共字典
+euskera.txt #数据目录字典
+extensions_common.txt #常用文件扩展名字典
+indexes.txt #首页字典
+mutations_common.txt #备份扩展名
+spanish.txt #方法名或库目录
+others #扩展目录，默认用户名、默认密码等
+stress #压力测试
+vulns #漏洞测试
+</pre>
+<code>dirbuster</code>
+<pre>apache-user-enum-** #apache用户枚举
+directories.jbrofuzz #目录枚举
+directory-list-1.0.txt #目录列表
+</pre>
+<!-- ![](http://liangsheng8708.github.io/post-images/1637203307707.png) -->
+<img src="http://www.muliang.top/post-images/1637203307707.png">
+<br>
+需要破解什么就使用什么字典。
+光有这些还不够，有时候我们需要特定的字典，比如发现可以暴力破解四位数验证码，这就需要我们生成特定的字典。这样我们就要需要kali下的另一款工具了。
+<h3>字典生成工具</h3>
+基本指令
+<pre>crunch 最小位数 最大位数 指定生成范围
+</pre>
+例如，我要生成由三位数和四位数生成的字典，且都有6789组成，如下图
+<br>
+<!-- ![](http://liangsheng8708.github.io/post-images/1637203778153.png) -->
+<img src="http://www.muliang.top/post-images/1637203778153.png">
+<br>
+我们还可以将生成的字典输出到特定文件中，格式如下
+<pre>crunch 3 4 6789 &gt;&gt;/home/kali/Desktop/pass.txt
+</pre>
+<!-- ![](http://liangsheng8708.github.io/post-images/1637203645105.png) -->
+<img src="http://www.muliang.top/post-images/1637203645105.png">
+            </div>
+          </article>
+        </div>
+        <div class="paper" data-aos="fade-in">
+          
+        </div>
+        
+      </div>
+
+      <div class="sm-12 md-4 col sidebar">
+  <div class="paper info-container">
+    <img src="http://liangsheng8708.github.io/images/avatar.png?v=1686227407809" class="no-responsive avatar">
+    <div class="text-muted"></div>
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      最新文章
+    </div>
+    <div class="row">
+      <ul>
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/-yvpxAk1O/">使用docker快速部署一个 IPsec VPN 服务器原创</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/zipweijiami/">zip伪加密</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/mimikatz/">使用mimikatz获取windows密码</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/CVE-2007-2447/">CVE-2007-2447渗透教程</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/CVE-2011-2523/">CVE-2011-2523渗透教程</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/hydra/">hydra的使用教程</a>
+            </li>
+          
+        
+      </ul>
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      标签列表
+    </div>
+    <div class="row">
+      
+        <a href="http://liangsheng8708.github.io/wangan/" class="badge secondary">
+          网安
+        </a>
+      
+    </div>
+  </div>
+  <div class="paper">
+    Powered by <a href="https://github.com/liangsheng8708" target="_blank">凉生丶因源</a><br /><a href="//beian.miit.gov.cn/" target="_blank">闽ICP备2022016489号-1</a> | <a class="rss" href="http://liangsheng8708.github.io/atom.xml" target="_blank">RSS</a>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+</script>
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>zip伪加密 | 凉生丶因源的blog</title>
+<meta name="description" content="">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="shortcut icon" href="http://liangsheng8708.github.io/favicon.ico?v=1686227407809">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://unpkg.com/papercss@1.6.1/dist/paper.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="http://liangsheng8708.github.io/styles/main.css">
+
+
+<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+  </head>
+  <body>
+  
+    <nav class="navbar border fixed split-nav">
+  <div class="nav-brand">
+    <h3><a href="http://liangsheng8708.github.io">凉生丶因源的blog</a></h3>
+  </div>
+  <div class="collapsible">
+    <input id="collapsible1" type="checkbox" name="collapsible1">
+    <button>
+      <label for="collapsible1">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+      </label>
+    </button>
+    <div class="collapsible-body">
+      <ul class="inline">
+        
+          <li>
+            
+              <a href="/" class="menu">
+                首页
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/archives" class="menu">
+                归档
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/tags" class="menu">
+                标签
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/post/about" class="menu">
+                关于
+              </a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div id="top" class="row site">
+      <div class="sm-12 md-8 col">
+        <div class="paper">
+          <article class="article">
+            <h1>zip伪加密</h1>
+            <p class="article-meta">
+              2022-10-13
+              
+                <a href="http://liangsheng8708.github.io/wangan/" class="badge ">
+                  网安
+                </a>
+              
+            </p>
+            
+            <div class="post-content" v-pre>
+              <h2>前言</h2>
+zip伪加密是在文件头的加密标志位做修改，进而再打开文件时识被别为加密压缩包。
+<h2>原理</h2>
+<storge>压缩源文件数据区：</storge>
+<pre>
+50 4B 03 04：这是头文件标记（0x04034b50）<br>
+14 00：解压文件所需 pkware 版本<br>
+00 00：全局方式位标记（判断有无加密）<br>
+08 00：压缩方式<br>
+5A 7E：最后修改文件时间<br>
+F7 46：最后修改文件日期
+</pre>
+<storge>压缩源文件目录区：</storge>
+<pre>
+50 4B 01 02：目录中文件文件头标记（0x02014b50）<br>
+1F 00：压缩使用的 pkware 版本<br>
+14 00：解压文件所需 pkware 版本<br>
+00 00：全局方式位标记（判断是否为伪加密）<br>
+08 00：压缩方式<br>
+5A 7E：最后修改文件时间<br>
+F7 46：最后修改文件日期
+</pre>
+<storge>压缩源文件目录结束标志：</storge>
+<pre>
+50 4B 05 06：目录结束标记<br>
+00 00：当前磁盘编号<br>
+00 00：目录区开始磁盘编号<br>
+01 00：本磁盘上纪录总数<br>
+01 00：目录区中纪录总数<br>
+59 00 00 00：目录区尺寸大小<br>
+3E 00 00 00：目录区对第一张磁盘的偏移量<br>
+00 00：ZIP 文件注释长度
+</pre>
+<h2>辨别方法</h2>
+<pre>
+全局方式位标记的四个数字中只有<strong>第二个数字</strong>对其有影响，其它的不管为何值，都不影响它的加密属性<br>
+第二个数字为奇数时 –>加密<br>
+第二个数字为偶数时 –>未加密
+</pre>
+<strong>未加密：</strong>
+<pre>
+压缩源文件数据区的全局方式位标记应当为00 00（50 4B 03 04 14 00 后）<br>
+且压缩源文件目录区的全局方式位标记应当为00 00（50 4B 01 02 14 00 后）
+</pre>
+<!-- ![](http://liangsheng8708.github.io/post-images/1665675674174.png) -->
+<img src="http://www.muliang.top/post-images/1665675674174.png"><br>
+<strong>真加密：</strong>
+<pre>
+压缩源文件数据区的全局方式位标记应当为09 00（50 4B 03 04 14 00 后） <br>
+且压缩源文件目录区的全局方式位标记应当为09 00（50 4B 01 02 14 00 后） 
+</pre>
+<!-- ![](http://liangsheng8708.github.io/post-images/1665675815385.png) -->
+<img src="http://www.muliang.top/post-images/1665675815385.png"><br>
+<strong>伪加密：</strong>
+<pre>
+压缩源文件数据区的全局方式位标记应当为 00 00（50 4B 03 04 14 00 后）<br>
+且压缩源文件目录区的全局方式位标记应当为 09 00（50 4B 01 02 14 00 后）
+</pre>
+<!-- ![](http://liangsheng8708.github.io/post-images/1665675719381.png) -->
+<img src="http://www.muliang.top/post-images/1665675719381.png"><br>
+<h2>修改方法</h2>
+确定是伪加密后就需要将其修改为无加密，方法很简单，就是将压缩源文件目录区的全局方式位标记从09 00改为00 00<br>
+<!-- ![](http://liangsheng8708.github.io/post-images/1665676010543.png) -->
+<img src="http://www.muliang.top/post-images/1665676010543.png"><br>
+<h2>反例</h2>
+这里是本文的重点所在，用winhex判断zip文件是否为伪加密存在问题，如图所示：<br>
+<!-- ![](http://liangsheng8708.github.io/post-images/1665676116087.png) -->
+<img src="http://www.muliang.top/post-images/1665676116087.png"><br>
+按照上述的判断方法可以得出这是一个加密的zip文件，但实际上这是一个伪加密的zip文件，所以仅靠这种方法不能100%准确判断。
+            </div>
+          </article>
+        </div>
+        <div class="paper" data-aos="fade-in">
+          
+            <div class="next-post">
+              <div class="next">
+                下一篇
+              </div>
+              <a href="http://liangsheng8708.github.io/mimikatz/">
+                <h3 class="post-title">
+                  使用mimikatz获取windows密码
+                </h3>
+              </a>
+            </div>
+          
+        </div>
+        
+      </div>
+
+      <div class="sm-12 md-4 col sidebar">
+  <div class="paper info-container">
+    <img src="http://liangsheng8708.github.io/images/avatar.png?v=1686227407809" class="no-responsive avatar">
+    <div class="text-muted"></div>
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      最新文章
+    </div>
+    <div class="row">
+      <ul>
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/-yvpxAk1O/">使用docker快速部署一个 IPsec VPN 服务器原创</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/zipweijiami/">zip伪加密</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/mimikatz/">使用mimikatz获取windows密码</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/CVE-2007-2447/">CVE-2007-2447渗透教程</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/CVE-2011-2523/">CVE-2011-2523渗透教程</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/hydra/">hydra的使用教程</a>
+            </li>
+          
+        
+      </ul>
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      标签列表
+    </div>
+    <div class="row">
+      
+        <a href="http://liangsheng8708.github.io/wangan/" class="badge secondary">
+          网安
+        </a>
+      
+    </div>
+  </div>
+  <div class="paper">
+    Powered by <a href="https://github.com/liangsheng8708" target="_blank">凉生丶因源</a><br /><a href="//beian.miit.gov.cn/" target="_blank">闽ICP备2022016489号-1</a> | <a class="rss" href="http://liangsheng8708.github.io/atom.xml" target="_blank">RSS</a>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+</script>
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>使用docker快速部署一个 IPsec VPN 服务器原创 | 凉生丶因源的blog</title>
+<meta name="description" content="">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="shortcut icon" href="http://liangsheng8708.github.io/favicon.ico?v=1686227407809">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://unpkg.com/papercss@1.6.1/dist/paper.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="http://liangsheng8708.github.io/styles/main.css">
+
+
+<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+  </head>
+  <body>
+  
+    <nav class="navbar border fixed split-nav">
+  <div class="nav-brand">
+    <h3><a href="http://liangsheng8708.github.io">凉生丶因源的blog</a></h3>
+  </div>
+  <div class="collapsible">
+    <input id="collapsible1" type="checkbox" name="collapsible1">
+    <button>
+      <label for="collapsible1">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+      </label>
+    </button>
+    <div class="collapsible-body">
+      <ul class="inline">
+        
+          <li>
+            
+              <a href="/" class="menu">
+                首页
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/archives" class="menu">
+                归档
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/tags" class="menu">
+                标签
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/post/about" class="menu">
+                关于
+              </a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div id="top" class="row site">
+      <div class="sm-12 md-8 col">
+        <div class="paper">
+          <article class="article">
+            <h1>使用docker快速部署一个 IPsec VPN 服务器原创</h1>
+            <p class="article-meta">
+              2022-11-26
+              
+            </p>
+            
+            <div class="post-content" v-pre>
+              <div class="com-markdown-collpase"><div class="com-markdown-collpase-main"><div><div class="rno-markdown J-articleContent rno-"><h2 id="#-1%EF%BC%8C%E5%BF%AB%E9%80%9F%E9%83%A8%E7%BD%B2" name="#-1%EF%BC%8C%E5%BF%AB%E9%80%9F%E9%83%A8%E7%BD%B2"><a data-from="10680" href="https://cloud.tencent.com/developer?from=10680" target="_blank">#</a> 1，快速部署</h2><p>使用如下命令快速创建 V** 服务 server 端：</p><div class="developer-code-block"><pre class="prism-token token line-numbers language-javascript" tabindex="0"><code class="language-javascript" style="margin-left:0">docker run <span class="token operator">--</span>name ipsec<span class="token operator">-</span>vpn<span class="token operator">-</span>server <span class="token operator">--</span>env<span class="token operator">-</span>file <span class="token operator">/</span>data<span class="token operator">/</span>jump<span class="token operator">/</span>vpn<span class="token operator">/</span><span class="token punctuation">.</span>env <span class="token operator">--</span>restart<span class="token operator">=</span>always <span class="token operator">-</span>p <span class="token number">500</span><span class="token operator">:</span><span class="token number">500</span><span class="token operator">/</span>udp <span class="token operator">-</span>p <span class="token number">4500</span><span class="token operator">:</span><span class="token number">4500</span><span class="token operator">/</span>udp <span class="token operator">-</span>v <span class="token operator">/</span>lib<span class="token operator">/</span>modules<span class="token operator">:</span><span class="token operator">/</span>lib<span class="token operator">/</span>modules<span class="token operator">:</span>ro <span class="token operator">-</span>d <span class="token operator">--</span>privileged registry<span class="token punctuation">.</span>cn<span class="token operator">-</span>hangzhou<span class="token punctuation">.</span>aliyuncs<span class="token punctuation">.</span>com<span class="token operator">/</span>eryajf<span class="token operator">/</span>ipsec<span class="token operator">-</span>vpn<span class="token operator">-</span>server<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><button class="copy">复制</button></div><p>其中用户名密码配置文件内容为：</p><div class="developer-code-block"><pre class="prism-token token line-numbers language-javascript" tabindex="0"><code class="language-javascript" style="margin-left:0">$ cat <span class="token operator">/</span>data<span class="token operator">/</span>jump<span class="token operator">/</span>vpn<span class="token operator">/</span><span class="token punctuation">.</span>env
+# Define your own values <span class="token keyword">for</span> these variables
+# <span class="token operator">-</span> <span class="token constant">DO</span> <span class="token constant">NOT</span> put <span class="token string">""</span> or <span class="token string">''</span> around values<span class="token punctuation">,</span> or add space around <span class="token operator">=</span>
+# <span class="token operator">-</span> <span class="token constant">DO</span> <span class="token constant">NOT</span> use these special characters within values<span class="token operator">:</span> \ " '
+<span class="token constant">VPN_IPSEC_PSK</span><span class="token operator">=</span>6JhixxWU0u9REqATiFrEAG0
+# 配置用于登陆<span class="token constant">VPN</span>的账号和密码
+<span class="token constant">VPN_USER</span><span class="token operator">=</span>admin
+<span class="token constant">VPN_PASSWORD</span><span class="token operator">=</span>9s0RrJX4qEoQG7L32s9I
+# 如下应该填写本机的外网<span class="token constant">IP</span>
+<span class="token constant">VPN_PUBLIC_IP</span><span class="token operator">=</span><span class="token number">10.10</span><span class="token number">.0</span><span class="token number">.2</span>
+# <span class="token punctuation">(</span>Optional<span class="token punctuation">)</span> Define additional <span class="token constant">VPN</span> users
+# <span class="token operator">-</span> Uncomment and replace <span class="token keyword">with</span> your own values
+# <span class="token operator">-</span> Usernames and passwords must be separated by spaces
+# 配置额外的用户名和密码
+<span class="token constant">VPN_ADDL_USERS</span><span class="token operator">=</span>user1 user2
+<span class="token constant">VPN_ADDL_PASSWORDS</span><span class="token operator">=</span>pass1 pass2
+# <span class="token punctuation">(</span>Optional<span class="token punctuation">)</span> Use alternative <span class="token constant">DNS</span> servers
+# <span class="token operator">-</span> By <span class="token keyword">default</span><span class="token punctuation">,</span> clients are <span class="token keyword">set</span> to use Google Public <span class="token constant">DNS</span>
+# <span class="token operator">-</span> Example below shows using Cloudflare's <span class="token constant">DNS</span> service
+<span class="token constant">VPN_DNS_SRV1</span><span class="token operator">=</span><span class="token number">223.5</span><span class="token number">.5</span><span class="token number">.5</span>
+<span class="token constant">VPN_DNS_SRV2</span><span class="token operator">=</span><span class="token number">223.6</span><span class="token number">.6</span><span class="token number">.6</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><button class="copy">复制</button></div><p>一个用户名对应一个密码，如果需要新增， 更改配置文件，重启服务即可。注意<a data-text-link="375_2032416" data-from="10680" href="https://cloud.tencent.com/product/cvm?from=10680" target="_blank">服务器</a>需要有外网 IP，以及放开对应端口。</p><p>查看 IPsec V** 服务器状态</p><div class="developer-code-block"><pre class="prism-token token line-numbers language-javascript" tabindex="0"><code class="language-javascript" style="margin-left:0">docker exec <span class="token operator">-</span>it ipsec<span class="token operator">-</span>vpn<span class="token operator">-</span>server ipsec status<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><button class="copy">复制</button></div><p>查看当前已建立的 V** 连接</p><div class="developer-code-block"><pre class="prism-token token line-numbers language-javascript" tabindex="0"><code class="language-javascript" style="margin-left:0">docker exec <span class="token operator">-</span>it ipsec<span class="token operator">-</span>vpn<span class="token operator">-</span>server ipsec whack <span class="token operator">--</span>trafficstatus<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><button class="copy">复制</button></div><h2 id="#-2%EF%BC%8C%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%BF%9E%E6%8E%A5" name="#-2%EF%BC%8C%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%BF%9E%E6%8E%A5"><a data-from="10680" href="https://cloud.tencent.com/developer?from=10680" target="_blank">#</a> 2，客户端连接</h2><p>目前手上只有 Mac 电脑，所以着重介绍下 Mac 的连接方式。</p><ol class="ol-level-0"><li>打开网络偏好设置详情
+ </li></ol><figure class=""><div class="image-block"><span><div class="" style="text-align: center; position: relative;"><img src="https://ask.qcloudimg.com/http-save/yehe-2330525/61d734ae73ede8ee8a0305b09328bec6.jpeg?imageView2/2/w/1620" style="box-shadow: none; width: 704px; display: inline-block;"></div></span></div></figure><ol class="ol-level-0"><li>然后点击左侧加号新建连接
+ </li></ol><figure class=""><div class="image-block"><span><div class="" style="text-align: center; position: relative;"><img src="https://ask.qcloudimg.com/http-save/yehe-2330525/6ebf9e6280da7f058b6e2ad1422bd125.jpeg?imageView2/2/w/1620" style="box-shadow: none; width: 704px; display: inline-block;"></div></span></div></figure><p>
+ 注意服务器地址应该填写服务端的外网 IP，账户名称则是上边对应的账号。
+ 点击认证设置，需要填写密码与共享秘钥，秘钥是上边配置文件中的 <code>VPN_IPSEC_PSK</code>。
+ </p><figure class=""><div class="image-block"><span class="lazy-image-holder" dataurl="https://ask.qcloudimg.com/http-save/yehe-2330525/d99e3b8bc01ba3cbaaa2cc2527c6fe77.jpeg"></span></div></figure><p>还要注意一个配置项，点击下边的高级，记得勾选通过 V** 发送所有流量：</p><figure class=""><div class="image-block"><span class="lazy-image-holder" dataurl="https://ask.qcloudimg.com/http-save/yehe-2330525/71a5447bc1a7f70546db3f426da9a14a.jpeg"></span></div></figure><p>配置完毕之后，点击应用，然后点击连接，如无问题，则配置完毕。</p><h2 id="#-3%EF%BC%8C%E5%8F%82%E8%80%83" name="#-3%EF%BC%8C%E5%8F%82%E8%80%83"><a data-from="10680" href="https://cloud.tencent.com/developer?from=10680" target="_blank">#</a> 3，参考</h2><ul class="ul-level-0"><li>https://github.com/hwdsl2/docker-ipsec-vpn-server/blob/master/README-zh.md</li><li><a data-from="10680" href="https://github.com/hwdsl2/setup-ipsec-vpn/blob/master/docs/clients-zh.md" target="_blank" rel="nofollow noopener noreferrer"><strong>配置 IPsec/L2TP VPN 客户端</strong>  <strong>(opens new window)</strong></a></li></ul></div></div><div id="J-viewLargeImageBox" class="zoom-mask" style="display: none; width: 100%; height: 100%; z-index: 1002;"><div class="zoom-close"></div><div class="zoom-wrap"><img></div></div><div class="col-2-article-source"><div class="col-2-author-info"><div class="col-2-author-info-inner"><div class="col-2-author-info-title">本文参与<a href="/developer/support-plan" target="_blank"> 腾讯云自媒体分享计划</a>  ，欢迎热爱写作的你一起参与！</div><div class="col-2-author-info-address"><div class="col-2-article-reprint"><div class="article-reprint-source"><span>本文分享自作者个人站点/博客：<!-- -->https://wiki.eryajf.net</span><a class="source-copy" data-clipboard-text="https://wiki.eryajf.net" href="javascript:void(0);"><span class="text">复制</span></a></div><div class="article-reprint-contact">如有侵权，请联系 <!-- -->cloudcommunity@tencent.com<!-- --> 删除。</div></div></div></div></div></div></div><div class="com-markdown-collpase-toggle"><a href="javascript:;" class="toggle-link">展开阅读全文</a></div></div><div class="col-2-article-tags"><nav class="col-tags"><a href="/developer/tag/10750?entry=article" class="col-tag">TCP/IP</a><a href="/developer/tag/10404?entry=article" class="col-tag">VPN 连接</a></nav><div class="extra-part"><div class="com-operations"><a href="javascript:;" class="com-opt-link link-warn"><i class="com-i-warn"></i>举报</a></div></div></div><div class="col-2-article-opts"><button type="button" class="c-btn"><span class="text"><i class="opt-icon like"></i>点赞 1</span></button><button type="button" class="c-btn c-btn-weak"><span class="text"><i class="opt-icon share"></i>分享</span></button></div><section class="group-comments"><div class="com-comment-single-edit theme2"><div class="edit-body"><div class="edit-textarea"></div><div class="edit-tip"><a href="javascript:;">登录</a> 后参与评论</div></div></div><div class="col-2-article-filter"><div class="article-filter-main"><em>0</em> 条评论</div></div><section class="com-comment-popup"><div class="popup-bd"><div></div></div></section></section></section>
+            </div>
+          </article>
+        </div>
+        <div class="paper" data-aos="fade-in">
+          
+            <div class="next-post">
+              <div class="next">
+                下一篇
+              </div>
+              <a href="http://liangsheng8708.github.io/zipweijiami/">
+                <h3 class="post-title">
+                  zip伪加密
+                </h3>
+              </a>
+            </div>
+          
+        </div>
+        
+      </div>
+
+      <div class="sm-12 md-4 col sidebar">
+  <div class="paper info-container">
+    <img src="http://liangsheng8708.github.io/images/avatar.png?v=1686227407809" class="no-responsive avatar">
+    <div class="text-muted"></div>
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      最新文章
+    </div>
+    <div class="row">
+      <ul>
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/-yvpxAk1O/">使用docker快速部署一个 IPsec VPN 服务器原创</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/zipweijiami/">zip伪加密</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/mimikatz/">使用mimikatz获取windows密码</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/CVE-2007-2447/">CVE-2007-2447渗透教程</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/CVE-2011-2523/">CVE-2011-2523渗透教程</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/hydra/">hydra的使用教程</a>
+            </li>
+          
+        
+      </ul>
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      标签列表
+    </div>
+    <div class="row">
+      
+        <a href="http://liangsheng8708.github.io/wangan/" class="badge secondary">
+          网安
+        </a>
+      
+    </div>
+  </div>
+  <div class="paper">
+    Powered by <a href="https://github.com/liangsheng8708" target="_blank">凉生丶因源</a><br /><a href="//beian.miit.gov.cn/" target="_blank">闽ICP备2022016489号-1</a> | <a class="rss" href="http://liangsheng8708.github.io/atom.xml" target="_blank">RSS</a>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+</script>
+
+
+
+
+  </body>
+</html>

